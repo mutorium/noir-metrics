@@ -55,3 +55,27 @@ fn is_nr_file(path: &Path) -> bool {
         .map(|ext| ext == "nr")
         .unwrap_or(false)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn finds_nr_files_in_fixture() {
+        let root = PathBuf::from("tests/fixtures/simple_noir");
+        let project = Project::from_root(root).expect("project should be valid");
+
+        let files = project.nr_files().expect("nr_files should succeed");
+
+        let joined_paths: Vec<String> = files
+            .iter()
+            .map(|p| p.to_string_lossy().to_string())
+            .collect();
+
+        assert!(
+            joined_paths.iter().any(|p| p.ends_with("src/main.nr")),
+            "expected to find src/main.nr in nr_files, got: {:?}",
+            joined_paths,
+        );
+    }
+}
