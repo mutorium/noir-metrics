@@ -156,3 +156,32 @@ fn is_test_file(rel_path: &Path) -> bool {
 
     false
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::path::PathBuf;
+
+    #[test]
+    fn counts_lines_and_tests_exactly() {
+        let project_root = PathBuf::from("tests/fixtures/file_metrics");
+        let path = project_root.join("src/metrics.nr");
+
+        let metrics = analyze_file(&path, &project_root).expect("analyze_file should succeed");
+
+        assert_eq!(metrics.total_lines, 19, "total_lines");
+        assert_eq!(metrics.blank_lines, 3, "blank_lines");
+        assert_eq!(metrics.comment_lines, 3, "comment_lines");
+        assert_eq!(metrics.code_lines, 13, "code_lines");
+
+        assert_eq!(metrics.test_functions, 2, "test_functions");
+        assert_eq!(metrics.test_lines, 8, "test_lines");
+        assert_eq!(metrics.non_test_lines, 5, "non_test_lines");
+
+        assert_eq!(
+            metrics.code_lines,
+            metrics.test_lines + metrics.non_test_lines,
+            "code_lines should equal test_lines + non_test_lines",
+        );
+    }
+}
