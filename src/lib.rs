@@ -2,7 +2,6 @@ mod analysis;
 mod cli;
 mod project;
 
-use crate::analysis::file::analyze_file;
 use crate::analysis::project::analyze_project;
 use crate::cli::Cli;
 use crate::project::Project;
@@ -22,7 +21,6 @@ pub fn run() -> Result<()> {
     }
 
     let report = analyze_project(&project)?;
-    let nr_files = project.nr_files()?;
 
     if args.verbose {
         eprintln!("Found {} .nr files", report.totals.files);
@@ -37,26 +35,21 @@ pub fn run() -> Result<()> {
             report.totals.test_functions,
             report.totals.test_code_percentage,
         );
-    }
 
-    // Temporary stub: print each .nr file relative to the project root.
-    for path in nr_files {
-        let metrics = analyze_file(&path, &project.root)?;
-
-        println!("{}", metrics.path.display());
-
-        if args.verbose {
+        for file in &report.files {
             eprintln!(
-                " -> toatl={}, code={}, comments={}, blanks={}, is_test_file={}",
-                metrics.total_lines,
-                metrics.code_lines,
-                metrics.comment_lines,
-                metrics.blank_lines,
-                metrics.is_test_file,
-            )
+                "  {} -> total={}, code={}, comments={}, blanks={}, is_test_file={}",
+                file.path.display(),
+                file.total_lines,
+                file.code_lines,
+                file.comment_lines,
+                file.blank_lines,
+                file.is_test_file,
+            );
         }
     }
 
+    // Always print the file paths once on stdout (what your test checks)
     for file in &report.files {
         println!("{}", file.path.display());
     }
