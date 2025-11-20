@@ -37,10 +37,6 @@ pub struct FileMetrics {
 }
 
 /// Analyze a single `.nr` file and compute basic line metrics.
-///
-/// Current implementation:
-/// - We count total / blank / comment / code lines
-/// - Test-related fields are stubbed (0) and will be implemented later.
 pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
