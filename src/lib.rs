@@ -3,6 +3,7 @@ mod cli;
 mod project;
 
 use crate::analysis::file::analyze_file;
+use crate::analysis::project::analyze_project;
 use crate::cli::Cli;
 use crate::project::Project;
 use anyhow::Result;
@@ -20,10 +21,22 @@ pub fn run() -> Result<()> {
         eprintln!("  manifest: {}", project.manifest_path.display());
     }
 
+    let report = analyze_project(&project)?;
     let nr_files = project.nr_files()?;
 
     if args.verbose {
-        eprintln!("Found {} .nr files", nr_files.len());
+        eprintln!("Found {} .nr files", report.totals.files);
+        eprintln!(
+            "Totals: total_lines={}, code_lines={}, comments={}, blanks={}, test_lines={}, non_test_lines={}, test_functions={}, test_code_percentage={:.2}%",
+            report.totals.total_lines,
+            report.totals.code_lines,
+            report.totals.comment_lines,
+            report.totals.blank_lines,
+            report.totals.test_lines,
+            report.totals.non_test_lines,
+            report.totals.test_functions,
+            report.totals.test_code_percentage,
+        );
     }
 
     // Temporary stub: print each .nr file relative to the project root.
@@ -42,6 +55,10 @@ pub fn run() -> Result<()> {
                 metrics.is_test_file,
             )
         }
+    }
+
+    for file in &report.files {
+        println!("{}", file.path.display());
     }
 
     Ok(())
