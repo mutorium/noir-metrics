@@ -1,6 +1,8 @@
+mod analysis;
 mod cli;
 mod project;
 
+use crate::analysis::file::analyze_file;
 use crate::cli::Cli;
 use crate::project::Project;
 use anyhow::Result;
@@ -26,8 +28,20 @@ pub fn run() -> Result<()> {
 
     // Temporary stub: print each .nr file relative to the project root.
     for path in nr_files {
-        let rel = path.strip_prefix(&project.root).unwrap_or(&path);
-        println!("{}", rel.display());
+        let metrics = analyze_file(&path, &project.root)?;
+
+        println!("{}", metrics.path.display());
+
+        if args.verbose {
+            eprintln!(
+                " -> toatl={}, code={}, comments={}, blanks={}, is_test_file={}",
+                metrics.total_lines,
+                metrics.code_lines,
+                metrics.comment_lines,
+                metrics.blank_lines,
+                metrics.is_test_file,
+            )
+        }
     }
 
     Ok(())
