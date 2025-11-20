@@ -9,3 +9,10 @@ fn test_main() {
     // Uncomment to make test fail
     // main(1, 1);
 }
+
+#[test]
+fn test_addition() {
+    let x = 1;
+    let y = 2;
+    constrain x + y == 3;
+}

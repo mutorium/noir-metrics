@@ -25,12 +25,14 @@ pub fn print_human_summary(report: &MetricsReport) -> Result<()> {
     println!("Per-file metrics:");
     for file in &report.files {
         println!(
-            "- {} (total={}, code={}, comments={}, blanks={}, is_test_file={})",
+            "- {} (total={}, code={}, comments={}, blanks={}, test={}, test_functions={}, is_test_file={})",
             file.path.display(),
             file.total_lines,
             file.code_lines,
             file.comment_lines,
             file.blank_lines,
+            file.test_lines,
+            file.test_functions,
             file.is_test_file,
         );
     }

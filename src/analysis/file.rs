@@ -48,6 +48,15 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
     let mut total_lines = 0usize;
     let mut blank_lines = 0usize;
     let mut comment_lines = 0usize;
+    let mut code_lines = 0usize;
+
+    let mut test_functions = 0usize;
+    let mut test_lines = 0usize;
+    let mut non_test_lines = 0usize;
+
+    let mut pending_test_attr = false;
+    let mut inside_test = false;
+    let mut brace_depth: i32 = 0;
 
     for line_result in reader.lines() {
         let line = line_result?;
@@ -55,16 +64,41 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
 
         let trimmed = line.trim();
 
+        let mut is_test_attr_line = false;
+
+        if trimmed.starts_with("#[test") {
+            pending_test_attr = true;
+            is_test_attr_line = true;
+        }
+
+        if pending_test_attr && (trimmed.starts_with("fn ") || trimmed.starts_with("pub fn ")) {
+            test_functions += 1;
+            inside_test = true;
+            pending_test_attr = false;
+            brace_depth = 0;
+        }
+
         if trimmed.is_empty() {
             blank_lines += 1;
         } else if trimmed.starts_with("//") {
             comment_lines += 1;
         } else {
-            // todo: detect test logic
+            code_lines += 1;
+
+            if inside_test || is_test_attr_line {
+                test_lines += 1;
+            } else {
+                non_test_lines += 1;
+            }
+        }
+
+        let braces_delta = count_braces(&line);
+        brace_depth += braces_delta;
+
+        if inside_test && brace_depth == 0 {
+            inside_test = false;
         }
     }
-
-    let code_lines = total_lines.saturating_sub(blank_lines + comment_lines);
 
     let rel_path = path
         .strip_prefix(project_root)
@@ -72,11 +106,6 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
         .to_path_buf();
 
     let is_test_file = is_test_file(&rel_path);
-
-    // todo: implement test discovery
-    let test_functions = 0;
-    let test_lines = 0;
-    let non_test_lines = code_lines;
 
     Ok(FileMetrics {
         path: rel_path,
@@ -89,6 +118,21 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
         test_lines,
         non_test_lines,
     })
+}
+
+/// Count the net number of braces on a line: `{` as +1, `}` as -1.
+fn count_braces(line: &str) -> i32 {
+    let mut delta = 0i32;
+
+    for ch in line.chars() {
+        match ch {
+            '{' => delta += 1,
+            '}' => delta -= 1,
+            _ => {}
+        }
+    }
+
+    delta
 }
 
 /// Heuristic to decide if a file is a "test file".
