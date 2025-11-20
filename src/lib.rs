@@ -39,7 +39,13 @@ pub fn run() -> Result<()> {
     }
 
     if args.json {
-        write_json(&report, args.output.as_deref())?;
+        // Always print JSON to stdout
+        write_json(&report, None)?;
+
+        // If an output file is specified, also write JSON there
+        if let Some(path) = args.output.as_deref() {
+            write_json(&report, Some(path))?;
+        }
     } else {
         print_human_summary(&report)?;
     }
