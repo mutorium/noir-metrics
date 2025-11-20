@@ -1,9 +1,11 @@
 mod analysis;
 mod cli;
+mod output;
 mod project;
 
 use crate::analysis::project::analyze_project;
 use crate::cli::Cli;
+use crate::output::{print_human_summary, write_json};
 use crate::project::Project;
 use anyhow::Result;
 use clap::Parser;
@@ -15,7 +17,7 @@ pub fn run() -> Result<()> {
     let project = Project::from_root(args.project_root.clone())?;
 
     if args.verbose {
-        eprintln!("noir-metrics");
+        eprintln!("noir-metrics (verbose)");
         eprintln!("  project_root: {}", project.root.display());
         eprintln!("  manifest: {}", project.manifest_path.display());
     }
@@ -23,35 +25,23 @@ pub fn run() -> Result<()> {
     let report = analyze_project(&project)?;
 
     if args.verbose {
-        eprintln!("Found {} .nr files", report.totals.files);
-        eprintln!(
-            "Totals: total_lines={}, code_lines={}, comments={}, blanks={}, test_lines={}, non_test_lines={}, test_functions={}, test_code_percentage={:.2}%",
-            report.totals.total_lines,
-            report.totals.code_lines,
-            report.totals.comment_lines,
-            report.totals.blank_lines,
-            report.totals.test_lines,
-            report.totals.non_test_lines,
-            report.totals.test_functions,
-            report.totals.test_code_percentage,
-        );
+        eprintln!("  analyzed .nr files: {}", report.totals.files);
 
-        for file in &report.files {
-            eprintln!(
-                "  {} -> total={}, code={}, comments={}, blanks={}, is_test_file={}",
-                file.path.display(),
-                file.total_lines,
-                file.code_lines,
-                file.comment_lines,
-                file.blank_lines,
-                file.is_test_file,
-            );
+        if args.json {
+            if let Some(ref out) = args.output {
+                eprintln!("  mode: JSON -> {}", out.display());
+            } else {
+                eprintln!("  mode: JSON -> stdout");
+            }
+        } else {
+            eprintln!("  mode: human summary -> stdout");
         }
     }
 
-    // Always print the file paths once on stdout (what your test checks)
-    for file in &report.files {
-        println!("{}", file.path.display());
+    if args.json {
+        write_json(&report, args.output.as_deref())?;
+    } else {
+        print_human_summary(&report)?;
     }
 
     Ok(())

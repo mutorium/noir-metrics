@@ -1,0 +1,38 @@
+{
+  "project_root": "/home/looptheory/dev/noir-metrics/tests/fixtures/simple_noir",
+  "totals": {
+    "files": 2,
+    "total_lines": 22,
+    "blank_lines": 4,
+    "comment_lines": 4,
+    "code_lines": 14,
+    "test_functions": 0,
+    "test_lines": 0,
+    "non_test_lines": 14,
+    "test_code_percentage": 0.0
+  },
+  "files": [
+    {
+      "path": "src/main.nr",
+      "is_test_file": false,
+      "total_lines": 11,
+      "blank_lines": 2,
+      "comment_lines": 2,
+      "code_lines": 7,
+      "test_functions": 0,
+      "test_lines": 0,
+      "non_test_lines": 7
+    },
+    {
+      "path": "src/main2.nr",
+      "is_test_file": false,
+      "total_lines": 11,
+      "blank_lines": 2,
+      "comment_lines": 2,
+      "code_lines": 7,
+      "test_functions": 0,
+      "test_lines": 0,
+      "non_test_lines": 7
+    }
+  ]
+}
