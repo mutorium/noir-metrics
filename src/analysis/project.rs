@@ -91,3 +91,67 @@ fn compute_totals(files: &[FileMetrics]) -> ProjectTotals {
 
     totals
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::project::Project;
+    use std::path::PathBuf;
+
+    #[test]
+    fn project_totals_match_sum_of_file_metrics() {
+        let root = PathBuf::from("tests/fixtures/project_metrics");
+        let project = Project::from_root(root).expect("project should be valid");
+
+        let report = analyze_project(&project).expect("analyze_project should succeed");
+
+        let mut files = 0usize;
+        let mut total_lines = 0usize;
+        let mut blank_lines = 0usize;
+        let mut comment_lines = 0usize;
+        let mut code_lines = 0usize;
+        let mut test_functions = 0usize;
+        let mut test_lines = 0usize;
+        let mut non_test_lines = 0usize;
+
+        for fm in &report.files {
+            files += 1;
+            total_lines += fm.total_lines;
+            blank_lines += fm.blank_lines;
+            comment_lines += fm.comment_lines;
+            code_lines += fm.code_lines;
+            test_functions += fm.test_functions;
+            test_lines += fm.test_lines;
+            non_test_lines += fm.non_test_lines;
+        }
+
+        assert_eq!(report.totals.files, files, "files");
+        assert_eq!(report.totals.total_lines, total_lines, "total_lines");
+        assert_eq!(report.totals.blank_lines, blank_lines, "blank_lines");
+        assert_eq!(report.totals.comment_lines, comment_lines, "comment_lines");
+        assert_eq!(report.totals.code_lines, code_lines, "code_lines");
+        assert_eq!(
+            report.totals.test_functions, test_functions,
+            "test_functions"
+        );
+        assert_eq!(report.totals.test_lines, test_lines, "test_lines");
+        assert_eq!(
+            report.totals.non_test_lines, non_test_lines,
+            "non_test_lines"
+        );
+
+        let expected_pct = if code_lines == 0 {
+            0.0
+        } else {
+            (test_lines as f64 / code_lines as f64) * 100.0
+        };
+
+        let actual_pct = report.totals.test_code_percentage;
+        let diff = (actual_pct - expected_pct).abs();
+
+        assert!(
+            diff < 1e-6,
+            "test_code_percentage mismatch: expected {expected_pct}, got {actual_pct}"
+        );
+    }
+}
