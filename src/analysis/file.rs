@@ -10,7 +10,7 @@ pub struct FileMetrics {
     /// Path to the file, relative to the project root
     pub path: PathBuf,
 
-    ///Heuristic: is this file considered a "test" file?
+    /// Heuristic: is this file considered a "test" file?
     pub is_test_file: bool,
 
     /// Total number of lines in the file (including blank and comment lines).
@@ -19,14 +19,15 @@ pub struct FileMetrics {
     /// Lines that are empty or only whitespace.
     pub blank_lines: usize,
 
-    /// Lines that are comments (starting with `//` after trimming).
+    /// Lines that are comments:
+    /// - starting with `//` after trimming, or
+    /// - inside `/* ... */` block comments.
     pub comment_lines: usize,
 
-    /// Lines that are considered code:
-    /// total_lines - blank_lines - comment_lines
+    /// Lines that are considered code (everything that's not blank or comment).
     pub code_lines: usize,
 
-    /// Number of functions annotated with `#[test]`.
+    /// Number of functions annotated with `#[test...]` (including #[test(should_fail)] variants).
     pub test_functions: usize,
 
     /// Number of code lines inside `#[test]` functions.
