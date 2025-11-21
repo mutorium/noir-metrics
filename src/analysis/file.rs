@@ -53,12 +53,31 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
     let mut pending_test_attr = false;
     let mut inside_test = false;
     let mut brace_depth: i32 = 0;
+    let mut in_block_comment = false;
 
     for line_result in reader.lines() {
         let line = line_result?;
         total_lines += 1;
 
         let trimmed = line.trim();
+
+        if in_block_comment {
+            comment_lines += 1;
+
+            if trimmed.contains("*/") {
+                in_block_comment = false;
+            }
+            continue;
+        }
+
+        if trimmed.starts_with("/*") {
+            comment_lines += 1;
+
+            if !trimmed.contains("*/") {
+                in_block_comment = true;
+            }
+            continue;
+        }
 
         let mut is_test_attr_line = false;
 
@@ -165,9 +184,9 @@ mod tests {
 
         let metrics = analyze_file(&path, &project_root).expect("analyze_file should succeed");
 
-        assert_eq!(metrics.total_lines, 19, "total_lines");
+        assert_eq!(metrics.total_lines, 22, "total_lines");
         assert_eq!(metrics.blank_lines, 3, "blank_lines");
-        assert_eq!(metrics.comment_lines, 3, "comment_lines");
+        assert_eq!(metrics.comment_lines, 6, "comment_lines");
         assert_eq!(metrics.code_lines, 13, "code_lines");
 
         assert_eq!(metrics.test_functions, 2, "test_functions");

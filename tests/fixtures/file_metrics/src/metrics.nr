@@ -1,4 +1,7 @@
-// File metrics test fixture
+/*
+    File metrics test fixture - block comment test
+    2nd line
+*/
 
 fn main() {
     let x = 1;
