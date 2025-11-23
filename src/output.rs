@@ -20,19 +20,31 @@ pub fn print_human_summary(report: &MetricsReport) -> Result<()> {
         report.totals.test_functions,
         report.totals.test_code_percentage,
     );
+    println!(
+        "Functions: total={}, pub={}, non-test={}, files_with_main={}, TODOs={}",
+        report.totals.functions,
+        report.totals.pub_functions,
+        report.totals.non_test_functions,
+        report.totals.files_with_main,
+        report.totals.todo_count,
+    );
     println!();
 
     println!("Per-file metrics:");
     for file in &report.files {
         println!(
-            "- {} (total={}, code={}, comments={}, blanks={}, test={}, test_functions={}, is_test_file={})",
+            "- {} (total={}, code={}, comments={}, blanks={}, tests={}, non-test={}, test_functions={}, fns={}, pub_fns={}, todos={}, is_test_file={})",
             file.path.display(),
             file.total_lines,
             file.code_lines,
             file.comment_lines,
             file.blank_lines,
             file.test_lines,
+            file.non_test_lines,
             file.test_functions,
+            file.functions,
+            file.pub_functions,
+            file.todo_count,
             file.is_test_file,
         );
     }

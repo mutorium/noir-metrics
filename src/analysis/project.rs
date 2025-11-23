@@ -22,14 +22,29 @@ pub struct ProjectTotals {
     /// Total code lines across all `.nr` files.
     pub code_lines: usize,
 
-    /// Total number of `#[test]` functions across all files.
+    /// Total number of `#[test...]` functions across all files.
     pub test_functions: usize,
 
-    /// Total code lines inside `#[test]` functions.
+    /// Total code lines inside `#[test...]` functions.
     pub test_lines: usize,
 
-    /// Total code lines outside `#[test]` functions.
+    /// Total code lines outside `#[test...]` functions.
     pub non_test_lines: usize,
+
+    /// Total number of functions (`fn` and `pub fn`) across all `.nr` files.
+    pub functions: usize,
+
+    /// Total number of `pub fn` functions across all `.nr` files.
+    pub pub_functions: usize,
+
+    /// Total number of non-test functions across all `.nr` files.
+    pub non_test_functions: usize,
+
+    /// Total number of TODO/FIXME markers in comments across the project.
+    pub todo_count: usize,
+
+    /// Number of files that define a `main` function.
+    pub files_with_main: usize,
 
     /// Percentage of code lines that are test lines (0.0 if there is no code).
     pub test_code_percentage: f64,
@@ -81,6 +96,14 @@ fn compute_totals(files: &[FileMetrics]) -> ProjectTotals {
         totals.test_functions += fm.test_functions;
         totals.test_lines += fm.test_lines;
         totals.non_test_lines += fm.non_test_lines;
+
+        totals.functions += fm.functions;
+        totals.pub_functions += fm.pub_functions;
+        totals.non_test_functions += fm.non_test_functions;
+        totals.todo_count += fm.todo_count;
+        if fm.has_main {
+            totals.files_with_main += 1;
+        }
     }
 
     totals.test_code_percentage = if totals.code_lines == 0 {
@@ -105,6 +128,7 @@ mod tests {
 
         let report = analyze_project(&project).expect("analyze_project should succeed");
 
+        // Manual sums from file metrics
         let mut files = 0usize;
         let mut total_lines = 0usize;
         let mut blank_lines = 0usize;
@@ -113,6 +137,11 @@ mod tests {
         let mut test_functions = 0usize;
         let mut test_lines = 0usize;
         let mut non_test_lines = 0usize;
+        let mut functions = 0usize;
+        let mut pub_functions = 0usize;
+        let mut non_test_functions = 0usize;
+        let mut todo_count = 0usize;
+        let mut files_with_main = 0usize;
 
         for fm in &report.files {
             files += 1;
@@ -123,6 +152,13 @@ mod tests {
             test_functions += fm.test_functions;
             test_lines += fm.test_lines;
             non_test_lines += fm.non_test_lines;
+            functions += fm.functions;
+            pub_functions += fm.pub_functions;
+            non_test_functions += fm.non_test_functions;
+            todo_count += fm.todo_count;
+            if fm.has_main {
+                files_with_main += 1;
+            }
         }
 
         assert_eq!(report.totals.files, files, "files");
@@ -139,11 +175,22 @@ mod tests {
             report.totals.non_test_lines, non_test_lines,
             "non_test_lines"
         );
+        assert_eq!(report.totals.functions, functions, "functions");
+        assert_eq!(report.totals.pub_functions, pub_functions, "pub_functions");
+        assert_eq!(
+            report.totals.non_test_functions, non_test_functions,
+            "non_test_functions"
+        );
+        assert_eq!(report.totals.todo_count, todo_count, "todo_count");
+        assert_eq!(
+            report.totals.files_with_main, files_with_main,
+            "files_with_main"
+        );
 
-        let expected_pct = if code_lines == 0 {
+        let expected_pct = if report.totals.code_lines == 0 {
             0.0
         } else {
-            (test_lines as f64 / code_lines as f64) * 100.0
+            (report.totals.test_lines as f64 / report.totals.code_lines as f64) * 100.0
         };
 
         let actual_pct = report.totals.test_code_percentage;

@@ -35,6 +35,21 @@ pub struct FileMetrics {
 
     /// Number of code lines outside tests: code_lines - test_lines.
     pub non_test_lines: usize,
+
+    /// Total number of functions (`fn` and `pub fn`) in this file.
+    pub functions: usize,
+
+    /// Number of `pub fn` (public functions) in this file.
+    pub pub_functions: usize,
+
+    /// Number of non-test functions (i.e. functions that are not tests).
+    pub non_test_functions: usize,
+
+    /// Does this file define a `main` function?
+    pub has_main: bool,
+
+    /// Number of TODO/FIXME markers in comment lines.
+    pub todo_count: usize,
 }
 
 /// Analyze a single `.nr` file and compute basic line metrics.
@@ -51,6 +66,12 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
     let mut test_lines = 0usize;
     let mut non_test_lines = 0usize;
 
+    let mut functions = 0usize;
+    let mut pub_functions = 0usize;
+    let mut non_test_functions = 0usize;
+    let mut has_main = false;
+    let mut todo_count = 0usize;
+
     let mut pending_test_attr = false;
     let mut inside_test = false;
     let mut brace_depth: i32 = 0;
@@ -65,6 +86,10 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
         if in_block_comment {
             comment_lines += 1;
 
+            if line_has_todo(&trimmed) {
+                todo_count += 1;
+            }
+
             if trimmed.contains("*/") {
                 in_block_comment = false;
             }
@@ -73,6 +98,10 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
 
         if trimmed.starts_with("/*") {
             comment_lines += 1;
+
+            if line_has_todo(&trimmed) {
+                todo_count += 1;
+            }
 
             if !trimmed.contains("*/") {
                 in_block_comment = true;
@@ -87,17 +116,37 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
             is_test_attr_line = true;
         }
 
-        if pending_test_attr && (trimmed.starts_with("fn ") || trimmed.starts_with("pub fn ")) {
-            test_functions += 1;
-            inside_test = true;
-            pending_test_attr = false;
-            brace_depth = 0;
+        let is_fn_line = trimmed.starts_with("fn ") || trimmed.starts_with("pub fn ");
+        let is_pub_fn = trimmed.starts_with("pub fn ");
+
+        if is_fn_line {
+            functions += 1;
+            if is_pub_fn {
+                pub_functions += 1;
+            }
+
+            if pending_test_attr {
+                test_functions += 1;
+                inside_test = true;
+                pending_test_attr = false;
+                brace_depth = 0;
+            } else {
+                non_test_functions += 1;
+            }
+
+            if trimmed.starts_with("fn main(") || trimmed.starts_with("pub fn main(") {
+                has_main = true;
+            }
         }
 
         if trimmed.is_empty() {
             blank_lines += 1;
         } else if trimmed.starts_with("//") {
             comment_lines += 1;
+
+            if line_has_todo(&trimmed) {
+                todo_count += 1;
+            }
         } else {
             code_lines += 1;
 
@@ -133,6 +182,11 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
         test_functions,
         test_lines,
         non_test_lines,
+        functions,
+        pub_functions,
+        non_test_functions,
+        has_main,
+        todo_count,
     })
 }
 
@@ -149,6 +203,12 @@ fn count_braces(line: &str) -> i32 {
     }
 
     delta
+}
+
+/// Check if a string contains todo or fixme
+fn line_has_todo(s: &str) -> bool {
+    let lower = s.to_lowercase();
+    lower.contains("todo") || lower.contains("fixme")
 }
 
 /// Heuristic to decide if a file is a "test file".
@@ -185,14 +245,21 @@ mod tests {
 
         let metrics = analyze_file(&path, &project_root).expect("analyze_file should succeed");
 
-        assert_eq!(metrics.total_lines, 22, "total_lines");
+        assert_eq!(metrics.total_lines, 23, "total_lines");
         assert_eq!(metrics.blank_lines, 3, "blank_lines");
-        assert_eq!(metrics.comment_lines, 6, "comment_lines");
+        assert_eq!(metrics.comment_lines, 7, "comment_lines");
         assert_eq!(metrics.code_lines, 13, "code_lines");
 
         assert_eq!(metrics.test_functions, 2, "test_functions");
         assert_eq!(metrics.test_lines, 8, "test_lines");
         assert_eq!(metrics.non_test_lines, 5, "non_test_lines");
+
+        assert_eq!(metrics.functions, 3, "functions");
+        assert_eq!(metrics.pub_functions, 0, "pub_functions");
+        assert_eq!(metrics.non_test_functions, 1, "non_test_functions");
+        assert!(metrics.has_main, "has_main should be true");
+
+        assert_eq!(metrics.todo_count, 3, "todo_count");
 
         assert_eq!(
             metrics.code_lines,

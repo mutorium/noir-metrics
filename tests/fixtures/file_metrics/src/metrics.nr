@@ -1,6 +1,7 @@
 /*
     File metrics test fixture - block comment test
     2nd line
+    Todo: test
 */
 
 fn main() {
@@ -9,13 +10,13 @@ fn main() {
     constrain x + y == 3;
 }
 
-// A passing test
+// todo: A passing test
 #[test]
 fn test_main() {
     main(1, 2);
 }
 
-// A failing test
+// fixme: A failing test
 #[test(should_fail)]
 fn test_fail() {
     assert(false);
