@@ -3,6 +3,12 @@ name = "noir-metrics"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
+description = "Source code metrics for Noir (Nargo) projects."
+repository = "https://github.com/mutorium/noir-metrics"
+homepage = "https://mutorium.com"
+readme = "README.md"
+keywords = ["noir", "nargo", "metrics", "zk", "security"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 anyhow = "1"
