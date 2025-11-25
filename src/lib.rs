@@ -9,43 +9,44 @@ use crate::output::{print_human_summary, write_json};
 use crate::project::Project;
 use anyhow::Result;
 use clap::Parser;
+use std::path::Path;
+
+pub use crate::analysis::file::FileMetrics;
+pub use crate::analysis::project::{MetricsReport, ProjectTotals};
+pub use crate::project::Project as NoirProject;
+
+/// Analyze a Noir project at the given root path.
+///
+/// This is the main entry point for *library* users.
+pub fn analyze_path(root: &Path) -> Result<MetricsReport> {
+    let project = Project::from_root(root.to_path_buf())?;
+    analyze_project(&project)
+}
 
 /// Entry point used by the binary.
+///
+/// Parses CLI args, calls `analyze_path`, and then either prints a human
+/// summary or writes JSON (and optionally saves it to a file).
 pub fn run() -> Result<()> {
     let args = Cli::parse();
 
-    let project = Project::from_root(args.project_root.clone())?;
-
     if args.verbose {
-        eprintln!("noir-metrics (verbose)");
-        eprintln!("  project_root: {}", project.root.display());
-        eprintln!("  manifest: {}", project.manifest_path.display());
+        eprintln!("noir-metrics");
+        eprintln!("  project_root: {}", args.project_root.display());
+        eprintln!("  json: {}", args.json);
+        eprintln!(
+            "  output: {}",
+            args.output
+                .as_ref()
+                .map(|p| p.display().to_string())
+                .unwrap_or_else(|| "<stdout>".to_string())
+        );
     }
 
-    let report = analyze_project(&project)?;
-
-    if args.verbose {
-        eprintln!("  analyzed .nr files: {}", report.totals.files);
-
-        if args.json {
-            if let Some(ref out) = args.output {
-                eprintln!("  mode: JSON -> {}", out.display());
-            } else {
-                eprintln!("  mode: JSON -> stdout");
-            }
-        } else {
-            eprintln!("  mode: human summary -> stdout");
-        }
-    }
+    let report = analyze_path(&args.project_root)?;
 
     if args.json {
-        // Always print JSON to stdout
-        write_json(&report, None)?;
-
-        // If an output file is specified, also write JSON there
-        if let Some(path) = args.output.as_deref() {
-            write_json(&report, Some(path))?;
-        }
+        write_json(&report, args.output.as_deref())?;
     } else {
         print_human_summary(&report)?;
     }
