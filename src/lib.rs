@@ -15,6 +15,11 @@ pub use crate::analysis::file::FileMetrics;
 pub use crate::analysis::project::{MetricsReport, ProjectTotals};
 pub use crate::project::Project as NoirProject;
 
+/// JSON schema version for the noir-metrics report format.
+///
+/// Bump this when making breaking changes to the JSON layout.
+pub const JSON_SCHEMA_VERSION: u32 = 1;
+
 /// Analyze a Noir project at the given root path.
 ///
 /// This is the main entry point for *library* users.

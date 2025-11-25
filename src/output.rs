@@ -1,9 +1,27 @@
+use crate::JSON_SCHEMA_VERSION;
 use crate::analysis::project::MetricsReport;
 use anyhow::Result;
+use serde::Serialize;
 use serde_json;
 use std::fs::File;
 use std::io::{self, Write};
 use std::path::Path;
+
+/// Metadata about this tool and the JSON schema version.
+#[derive(Debug, Serialize)]
+struct ToolMeta {
+    name: &'static str,
+    version: &'static str,
+    schema_version: u32,
+}
+
+/// JSON representation of a metrics report including tool metadata.
+#[derive(Debug, Serialize)]
+struct JsonReport<'a> {
+    tool: ToolMeta,
+    #[serde(flatten)]
+    report: &'a MetricsReport,
+}
 
 /// Print a human-readable summary to stdout.
 pub fn print_human_summary(report: &MetricsReport) -> Result<()> {
@@ -53,17 +71,27 @@ pub fn print_human_summary(report: &MetricsReport) -> Result<()> {
 }
 
 /// Write the metrics report as pretty JSON to either stdout or a file.
+///
+/// The JSON includes a `tool` block with name, version, and schema_version.
 pub fn write_json(report: &MetricsReport, output: Option<&Path>) -> Result<()> {
+    let meta = ToolMeta {
+        name: "noir-metrics",
+        version: env!("CARGO_PKG_VERSION"),
+        schema_version: JSON_SCHEMA_VERSION,
+    };
+
+    let wrapper = JsonReport { tool: meta, report };
+
     match output {
         Some(path) => {
             let file = File::create(path)?;
-            serde_json::to_writer_pretty(file, report)?;
+            serde_json::to_writer_pretty(file, &wrapper)?;
         }
         None => {
             let stdout = io::stdout();
             let mut handle = stdout.lock();
-            serde_json::to_writer_pretty(&mut handle, report)?;
-            writeln!(handle)?;
+            serde_json::to_writer_pretty(&mut handle, &wrapper)?;
+            writeln!(handle)?; // newline at the end
         }
     }
 

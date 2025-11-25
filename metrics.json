@@ -1,38 +1,58 @@
 {
-  "project_root": "/home/looptheory/dev/noir-metrics/tests/fixtures/simple_noir",
+  "tool": {
+    "name": "noir-metrics",
+    "version": "0.1.0",
+    "schema_version": 1
+  },
+  "project_root": "/home/looptheory/dev/noir-metrics/tests/fixtures/project_metrics",
   "totals": {
     "files": 2,
-    "total_lines": 22,
-    "blank_lines": 4,
-    "comment_lines": 4,
-    "code_lines": 14,
-    "test_functions": 0,
-    "test_lines": 0,
-    "non_test_lines": 14,
-    "test_code_percentage": 0.0
+    "total_lines": 40,
+    "blank_lines": 7,
+    "comment_lines": 9,
+    "code_lines": 24,
+    "test_functions": 4,
+    "test_lines": 18,
+    "non_test_lines": 6,
+    "functions": 6,
+    "pub_functions": 0,
+    "non_test_functions": 2,
+    "todo_count": 0,
+    "files_with_main": 2,
+    "test_code_percentage": 75.0
   },
   "files": [
     {
       "path": "src/main.nr",
       "is_test_file": false,
-      "total_lines": 11,
-      "blank_lines": 2,
-      "comment_lines": 2,
-      "code_lines": 7,
-      "test_functions": 0,
-      "test_lines": 0,
-      "non_test_lines": 7
+      "total_lines": 20,
+      "blank_lines": 4,
+      "comment_lines": 5,
+      "code_lines": 11,
+      "test_functions": 2,
+      "test_lines": 8,
+      "non_test_lines": 3,
+      "functions": 3,
+      "pub_functions": 0,
+      "non_test_functions": 1,
+      "has_main": true,
+      "todo_count": 0
     },
     {
       "path": "src/main2.nr",
       "is_test_file": false,
-      "total_lines": 11,
-      "blank_lines": 2,
-      "comment_lines": 2,
-      "code_lines": 7,
-      "test_functions": 0,
-      "test_lines": 0,
-      "non_test_lines": 7
+      "total_lines": 20,
+      "blank_lines": 3,
+      "comment_lines": 4,
+      "code_lines": 13,
+      "test_functions": 2,
+      "test_lines": 10,
+      "non_test_lines": 3,
+      "functions": 3,
+      "pub_functions": 0,
+      "non_test_functions": 1,
+      "has_main": true,
+      "todo_count": 0
     }
   ]
 }
