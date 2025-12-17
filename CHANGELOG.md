@@ -16,7 +16,7 @@ We aim to follow Semantic Versioning. While <1.0, we try to keep minor releases 
 - —
 
 ### Fixed
-- —
+- Clippy warnings in analysis and output modules (no functional changes intended).
 
 
 ## [0.1.0] - 2025-11-25
