@@ -84,9 +84,10 @@ pub fn analyze_project(project: &Project) -> Result<MetricsReport> {
 
 /// Compute project-level totals from per-file metrics
 fn compute_totals(files: &[FileMetrics]) -> ProjectTotals {
-    let mut totals = ProjectTotals::default();
-
-    totals.files = files.len();
+    let mut totals = ProjectTotals {
+        files: files.len(),
+        ..Default::default()
+    };
 
     for fm in files {
         totals.total_lines += fm.total_lines;

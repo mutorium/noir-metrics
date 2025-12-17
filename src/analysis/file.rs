@@ -86,7 +86,7 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
         if in_block_comment {
             comment_lines += 1;
 
-            if line_has_todo(&trimmed) {
+            if line_has_todo(trimmed) {
                 todo_count += 1;
             }
 
@@ -99,7 +99,7 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
         if trimmed.starts_with("/*") {
             comment_lines += 1;
 
-            if line_has_todo(&trimmed) {
+            if line_has_todo(trimmed) {
                 todo_count += 1;
             }
 
@@ -144,7 +144,7 @@ pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
         } else if trimmed.starts_with("//") {
             comment_lines += 1;
 
-            if line_has_todo(&trimmed) {
+            if line_has_todo(trimmed) {
                 todo_count += 1;
             }
         } else {
@@ -224,10 +224,10 @@ fn is_test_file(rel_path: &Path) -> bool {
         return true;
     }
 
-    if let Some(file_name) = rel_path.file_name().and_then(|s| s.to_str()) {
-        if file_name.ends_with("_test.nr") {
-            return true;
-        }
+    if let Some(file_name) = rel_path.file_name().and_then(|s| s.to_str())
+        && file_name.ends_with("_test.nr")
+    {
+        return true;
     }
 
     false

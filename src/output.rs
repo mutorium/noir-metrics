@@ -2,7 +2,6 @@ use crate::JSON_SCHEMA_VERSION;
 use crate::analysis::project::MetricsReport;
 use anyhow::Result;
 use serde::Serialize;
-use serde_json;
 use std::fs::File;
 use std::io::{self, Write};
 use std::path::Path;
