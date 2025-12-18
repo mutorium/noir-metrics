@@ -96,3 +96,76 @@ pub fn write_json(report: &MetricsReport, output: Option<&Path>) -> Result<()> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::write_json;
+    use crate::analysis::file::FileMetrics;
+    use crate::analysis::project::{MetricsReport, ProjectTotals};
+    use std::path::PathBuf;
+
+    #[test]
+    fn write_json_writes_a_file() {
+        // Build a minimal report
+        let report = MetricsReport {
+            project_root: PathBuf::from("tests/fixtures/simple_noir"),
+            totals: ProjectTotals {
+                files: 1,
+                total_lines: 1,
+                code_lines: 1,
+                non_test_lines: 1,
+                functions: 1,
+                non_test_functions: 1,
+                files_with_main: 1,
+                ..Default::default()
+            },
+            files: vec![FileMetrics {
+                path: PathBuf::from("src/main.nr"),
+                is_test_file: false,
+                total_lines: 1,
+                blank_lines: 0,
+                comment_lines: 0,
+                code_lines: 1,
+                test_functions: 0,
+                test_lines: 0,
+                non_test_lines: 1,
+                functions: 1,
+                pub_functions: 0,
+                non_test_functions: 1,
+                has_main: true,
+                todo_count: 0,
+            }],
+        };
+
+        // Write to a unique temp file.
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+
+        let out_path = std::env::temp_dir().join(format!("noir_metrics_write_json_{unique}.json"));
+
+        // If something already exists (unlikely), remove it.
+        let _ = std::fs::remove_file(&out_path);
+
+        write_json(&report, Some(&out_path)).expect("write_json should succeed");
+
+        let s = std::fs::read_to_string(&out_path).expect("expected output json file to exist");
+
+        // Key checks: if the mutant turns write_json into Ok(()), these will fail.
+        assert!(
+            s.contains("\"tool\""),
+            "expected JSON to contain tool metadata"
+        );
+        assert!(
+            s.contains("\"schema_version\""),
+            "expected JSON to contain schema_version"
+        );
+        assert!(
+            s.contains("\"project_root\""),
+            "expected JSON to contain project_root"
+        );
+
+        let _ = std::fs::remove_file(&out_path);
+    }
+}
