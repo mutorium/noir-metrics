@@ -267,4 +267,32 @@ mod tests {
             "code_lines should equal test_lines + non_test_lines",
         );
     }
+
+    #[test]
+    fn is_test_file_detects_tests_dir() {
+        assert!(is_test_file(Path::new("tests/main.nr")));
+        assert!(is_test_file(Path::new("src/tests/main.nr")));
+        assert!(is_test_file(Path::new("src/test/main.nr")));
+    }
+
+    #[test]
+    fn is_test_file_detects_suffix() {
+        assert!(is_test_file(Path::new("src/foo_test.nr")));
+    }
+
+    #[test]
+    fn is_test_file_false_for_regular_files() {
+        assert!(!is_test_file(Path::new("src/main.nr")));
+        assert!(!is_test_file(Path::new("src/lib.nr")));
+    }
+
+    #[test]
+    fn count_braces_counts_open_and_close() {
+        assert_eq!(count_braces("{"), 1);
+        assert_eq!(count_braces("}"), -1);
+        assert_eq!(count_braces("{}"), 0);
+        assert_eq!(count_braces("{{}}"), 0);
+        assert_eq!(count_braces("{{}}}"), -1);
+        assert_eq!(count_braces("fn x() { let y = 1; }"), 0);
+    }
 }
