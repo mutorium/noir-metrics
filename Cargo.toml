@@ -1,6 +1,6 @@
 [package]
 name = "noir-metrics"
-version = "0.1.0"
+version = "0.2.0-alpha.1"
 edition = "2024"
 license = "MIT"
 description = "Source code metrics for Noir (Nargo) projects."

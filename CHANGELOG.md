@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 We aim to follow Semantic Versioning. While <1.0, we try to keep minor releases backwards compatible when reasonable.
 
-## [Unreleased] (target: 0.2.0)
+## [Unreleased] (target: 0.2.0-alpha.1)
 
 ### Added
 - `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`.
