@@ -1,0 +1,20 @@
+---
+source: src/analysis/file.rs
+expression: v
+---
+{
+  "blank_lines": 4,
+  "code_lines": 16,
+  "comment_lines": 8,
+  "functions": 4,
+  "has_main": true,
+  "is_test_file": false,
+  "non_test_functions": 2,
+  "non_test_lines": 8,
+  "path": "src/metrics.nr",
+  "pub_functions": 1,
+  "test_functions": 2,
+  "test_lines": 8,
+  "todo_count": 4,
+  "total_lines": 28
+}

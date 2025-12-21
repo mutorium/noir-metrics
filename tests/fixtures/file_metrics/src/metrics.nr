@@ -4,6 +4,11 @@
     Todo: test
 */
 
+/* TODO: improve this later */
+pub fn helper(x: Field) -> Field {
+    x + 1
+}
+
 fn main() {
     let x = 1;
     let y = 2;

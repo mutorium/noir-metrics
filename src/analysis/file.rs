@@ -245,27 +245,14 @@ mod tests {
 
         let metrics = analyze_file(&path, &project_root).expect("analyze_file should succeed");
 
-        assert_eq!(metrics.total_lines, 23, "total_lines");
-        assert_eq!(metrics.blank_lines, 3, "blank_lines");
-        assert_eq!(metrics.comment_lines, 7, "comment_lines");
-        assert_eq!(metrics.code_lines, 13, "code_lines");
-
-        assert_eq!(metrics.test_functions, 2, "test_functions");
-        assert_eq!(metrics.test_lines, 8, "test_lines");
-        assert_eq!(metrics.non_test_lines, 5, "non_test_lines");
-
-        assert_eq!(metrics.functions, 3, "functions");
-        assert_eq!(metrics.pub_functions, 0, "pub_functions");
-        assert_eq!(metrics.non_test_functions, 1, "non_test_functions");
-        assert!(metrics.has_main, "has_main should be true");
-
-        assert_eq!(metrics.todo_count, 3, "todo_count");
-
         assert_eq!(
             metrics.code_lines,
             metrics.test_lines + metrics.non_test_lines,
             "code_lines should equal test_lines + non_test_lines",
         );
+
+        let v = serde_json::to_value(&metrics).expect("FileMetrics should serialize");
+        insta::assert_json_snapshot!(v);
     }
 
     #[test]
