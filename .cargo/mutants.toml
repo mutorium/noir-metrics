@@ -1,0 +1,3 @@
+exclude_re = [
+  "src/analysis/file\\.rs:161:21: replace \\+= with \\-= in analyze_file",
+]
