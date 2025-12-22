@@ -14,6 +14,7 @@ We aim to follow Semantic Versioning. While <1.0, we try to keep minor releases 
 - Snapshot testing with `insta` to stabilize metrics expectations.
 - Cargo-mutants configuration to exclude an equivalent mutant.
 - Integration test that snapshots CLI `--json` output.
+- Integration test for CLI --json --output file writing.
 
 ### Changed
 - Expanded and adjusted test fixtures to cover additional metrics paths (e.g., `pub fn`, block TODOs).
