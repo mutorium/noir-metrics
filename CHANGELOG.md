@@ -15,6 +15,7 @@ We aim to follow Semantic Versioning. While <1.0, we try to keep minor releases 
 - Cargo-mutants configuration to exclude an equivalent mutant.
 - Integration test that snapshots CLI `--json` output.
 - Integration test for CLI --json --output file writing.
+- Integration test that validates human-readable CLI output structure.
 
 ### Changed
 - Expanded and adjusted test fixtures to cover additional metrics paths (e.g., `pub fn`, block TODOs).
