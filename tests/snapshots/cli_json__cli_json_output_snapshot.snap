@@ -1,0 +1,78 @@
+---
+source: tests/cli_json.rs
+expression: v
+---
+{
+  "files": [
+    {
+      "blank_lines": 4,
+      "code_lines": 11,
+      "comment_lines": 5,
+      "functions": 3,
+      "has_main": true,
+      "is_test_file": false,
+      "non_test_functions": 1,
+      "non_test_lines": 3,
+      "path": "src/main.nr",
+      "pub_functions": 0,
+      "test_functions": 2,
+      "test_lines": 8,
+      "todo_count": 0,
+      "total_lines": 20
+    },
+    {
+      "blank_lines": 3,
+      "code_lines": 13,
+      "comment_lines": 4,
+      "functions": 3,
+      "has_main": true,
+      "is_test_file": false,
+      "non_test_functions": 1,
+      "non_test_lines": 3,
+      "path": "src/main2.nr",
+      "pub_functions": 0,
+      "test_functions": 2,
+      "test_lines": 10,
+      "todo_count": 0,
+      "total_lines": 20
+    },
+    {
+      "blank_lines": 0,
+      "code_lines": 3,
+      "comment_lines": 1,
+      "functions": 1,
+      "has_main": false,
+      "is_test_file": false,
+      "non_test_functions": 1,
+      "non_test_lines": 3,
+      "path": "src/pub_todo.nr",
+      "pub_functions": 1,
+      "test_functions": 0,
+      "test_lines": 0,
+      "todo_count": 1,
+      "total_lines": 4
+    }
+  ],
+  "project_root": "tests/fixtures/project_metrics",
+  "tool": {
+    "name": "noir-metrics",
+    "schema_version": 1,
+    "version": "<VERSION>"
+  },
+  "totals": {
+    "blank_lines": 7,
+    "code_lines": 27,
+    "comment_lines": 10,
+    "files": 3,
+    "files_with_main": 2,
+    "functions": 7,
+    "non_test_functions": 3,
+    "non_test_lines": 9,
+    "pub_functions": 1,
+    "test_code_percentage": 66.66666666666666,
+    "test_functions": 4,
+    "test_lines": 18,
+    "todo_count": 1,
+    "total_lines": 44
+  }
+}

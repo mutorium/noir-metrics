@@ -45,6 +45,7 @@ impl Project {
             }
         }
 
+        files.sort();
         Ok(files)
     }
 }
