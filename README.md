@@ -32,7 +32,7 @@ Current metrics (per file and project-level totals):
 
 The report is exposed both as:
 
-- a **human-readable summary** (default), and  
+- a **human-readable summary** (default), and
 - a **machine-readable JSON** document with a versioned schema.
 
 ---
@@ -68,36 +68,40 @@ Run `noir-metrics` in a Nargo project (directory containing `Nargo.toml`):
 noir-metrics .
 
 # JSON output to stdout
-noir-metrics . --json
+noir-metrics . --format json
 
-# JSON output to stdout and also save to a file
-noir-metrics . --json --output metrics.json
+# JSON output to a file
+noir-metrics . --format json --output metrics.json
 ```
 
 Available flags:
 
 - `PROJECT_ROOT` (positional): path to the Noir project (default: `.`)
-- `--json`: output JSON instead of a human-readable summary
-- `--output <PATH>`: also write JSON to the given file
+- `--format <human|json>`: output format (default: `human`)
+- `--output <PATH>`: write JSON output to the given file (**requires** `--format json`)
 - `-v, --verbose`: print additional debug info to stderr
+
+Backwards compatibility:
+
+- `--json` is supported as a hidden alias for `--format json` (prefer `--format json` in scripts).
 
 Example (verbose JSON run):
 
 ```bash
-noir-metrics . --json --output metrics.json --verbose
+noir-metrics . --format json --output metrics.json --verbose
 ```
 
 ---
 
 ## JSON output
 
-When run with `--json`, `noir-metrics` emits a JSON document of the form:
+When run with `--format json`, `noir-metrics` emits a JSON document of the form:
 
 ```json
 {
   "tool": {
     "name": "noir-metrics",
-    "version": "0.1.0",
+    "version": "<VERSION>",
     "schema_version": 1
   },
   "project_root": "path/to/project",
@@ -151,7 +155,7 @@ Add it as a dependency:
 
 ```toml
 [dependencies]
-noir-metrics = "0.1"
+noir-metrics = "0.2"
 ```
 
 Then call the library API:

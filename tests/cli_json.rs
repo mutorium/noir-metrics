@@ -8,7 +8,7 @@ fn cli_json_output_snapshot() {
     let fixture = PathBuf::from("tests/fixtures/project_metrics");
 
     let mut cmd = cargo_bin_cmd!("noir-metrics");
-    cmd.arg(&fixture).arg("--json");
+    cmd.arg(&fixture).arg("--format").arg("json");
 
     let assert = cmd.assert().success();
 
@@ -52,7 +52,8 @@ fn cli_json_output_writes_file() {
 
     let mut cmd = cargo_bin_cmd!("noir-metrics");
     cmd.arg(&fixture)
-        .arg("--json")
+        .arg("--format")
+        .arg("json")
         .arg("--output")
         .arg(&out_path);
 
@@ -82,4 +83,17 @@ fn cli_json_output_writes_file() {
     insta::assert_json_snapshot!(v);
 
     let _ = fs::remove_file(&out_path);
+}
+
+#[test]
+fn cli_deprecated_json_flag_still_outputs_json() {
+    let fixture = PathBuf::from("tests/fixtures/project_metrics");
+
+    let mut cmd = cargo_bin_cmd!("noir-metrics");
+    cmd.arg(&fixture).arg("--json");
+
+    let assert = cmd.assert().success();
+    let stdout = String::from_utf8(assert.get_output().stdout.clone()).expect("stdout is utf-8");
+
+    let _: Value = serde_json::from_str(&stdout).expect("stdout is valid JSON");
 }

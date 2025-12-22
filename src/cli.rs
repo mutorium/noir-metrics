@@ -1,10 +1,10 @@
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use std::path::PathBuf;
 
 /// Command-line arguments for noir-metrics.
 ///
 /// Example:
-///   noir-metrics . --json --output metrics.json
+///   noir-metrics . --format json --output metrics.json
 #[derive(Debug, Parser)]
 #[command(name = "noir-metrics")]
 pub struct Cli {
@@ -12,8 +12,12 @@ pub struct Cli {
     #[arg(value_name = "PROJECT_ROOT", default_value = ".")]
     pub project_root: PathBuf,
 
-    /// Output JSON instead of a human-readable summary
-    #[arg(long)]
+    /// Output format (`human` or `json`)
+    #[arg(long, value_enum, value_name = "FORMAT")]
+    pub format: Option<OutputFormat>,
+
+    /// Backwards-compat alias for JSON output (prefer `--format json`)
+    #[arg(long, hide = true)]
     pub json: bool,
 
     /// Write JSON output to this file instead of stdout
@@ -23,4 +27,10 @@ pub struct Cli {
     /// Verbose logging
     #[arg(short, long)]
     pub verbose: bool,
+}
+
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum OutputFormat {
+    Human,
+    Json,
 }

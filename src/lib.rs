@@ -34,10 +34,10 @@ mod output;
 mod project;
 
 use crate::analysis::project::analyze_project;
-use crate::cli::Cli;
+use crate::cli::{Cli, OutputFormat};
 use crate::output::{print_human_summary, write_json};
 use crate::project::Project;
-use anyhow::Result;
+use anyhow::{Result, bail};
 use clap::Parser;
 use std::path::Path;
 
@@ -67,10 +67,21 @@ pub fn analyze_path(root: &Path) -> Result<MetricsReport> {
 pub fn run() -> Result<()> {
     let args = Cli::parse();
 
+    let format = match (args.format, args.json) {
+        (Some(f), false) => f,
+        (None, true) => OutputFormat::Json,
+        (Some(_), true) => bail!("flags --format and --json cannot be used together"),
+        (None, false) => OutputFormat::Human,
+    };
+
+    if args.output.is_some() && !matches!(format, OutputFormat::Json) {
+        bail!("--output requires JSON output (use --format json)");
+    }
+
     if args.verbose {
         eprintln!("noir-metrics");
         eprintln!("  project_root: {}", args.project_root.display());
-        eprintln!("  json: {}", args.json);
+        eprintln!("  format: {:?}", format);
         eprintln!(
             "  output: {}",
             args.output
@@ -82,10 +93,9 @@ pub fn run() -> Result<()> {
 
     let report = analyze_path(&args.project_root)?;
 
-    if args.json {
-        write_json(&report, args.output.as_deref())?;
-    } else {
-        print_human_summary(&report)?;
+    match format {
+        OutputFormat::Json => write_json(&report, args.output.as_deref())?,
+        OutputFormat::Human => print_human_summary(&report)?,
     }
 
     Ok(())
