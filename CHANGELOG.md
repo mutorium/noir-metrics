@@ -19,6 +19,7 @@ We aim to follow Semantic Versioning. While <1.0, we try to keep minor releases 
 
 ### Changed
 - Expanded and adjusted test fixtures to cover additional metrics paths (e.g., `pub fn`, block TODOs).
+- Improved Rustdoc: added crate-level and API documentation for core types and behavior.
 
 ### Fixed
 - Clippy warnings in analysis and output modules (no functional changes intended).

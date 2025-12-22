@@ -5,15 +5,19 @@ use walkdir::WalkDir;
 /// Represents a Noir project on disk.
 #[derive(Debug)]
 pub struct Project {
+    /// Absolute path to the project root directory.
     pub root: PathBuf,
+
+    /// Absolute path to `Nargo.toml` inside the project root.
     pub manifest_path: PathBuf,
 }
 
 impl Project {
-    /// Construct a Project from a given root directory.
-    /// Checks that:
-    ///   - root is a directory
-    ///   - Nargo.toml exists in the root
+    /// Construct a project handle from a root directory.
+    ///
+    /// Validation:
+    /// - `root` resolves to a directory
+    /// - `Nargo.toml` exists in the root
     pub fn from_root(root: PathBuf) -> Result<Self> {
         let root = root.canonicalize()?;
 
@@ -34,6 +38,8 @@ impl Project {
     }
 
     /// Find all `.nr` files under the project root (recursively).
+    ///
+    /// Returned paths are sorted for stable output.
     pub fn nr_files(&self) -> Result<Vec<PathBuf>> {
         let mut files = Vec::new();
 

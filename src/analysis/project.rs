@@ -5,6 +5,9 @@ use serde::Serialize;
 use std::path::PathBuf;
 
 /// Aggregated metrics for a whole Noir project.
+///
+/// These totals are derived by summing per-file [`FileMetrics`] values and computing
+/// derived fields such as [`ProjectTotals::test_code_percentage`].
 #[derive(Debug, Clone, Serialize, Default)]
 pub struct ProjectTotals {
     /// Number of `.nr` files in the project.
@@ -50,7 +53,11 @@ pub struct ProjectTotals {
     pub test_code_percentage: f64,
 }
 
-/// Full metrics report for a project (for JSON & internal use).
+/// Full metrics report for a project.
+///
+/// This type is the primary output for library consumers and JSON output:
+/// - [`MetricsReport::totals`] contains project-level aggregates.
+/// - [`MetricsReport::files`] contains per-file metrics.
 #[derive(Debug, Clone, Serialize)]
 pub struct MetricsReport {
     /// Absolute path to the project root.
@@ -64,6 +71,9 @@ pub struct MetricsReport {
 }
 
 /// Analyze a project: collect per-file metrics and aggregate totals.
+///
+/// The file list is sourced from [`Project::nr_files`]. Each file is analyzed using [`analyze_file`],
+/// and totals are computed via aggregation.
 pub fn analyze_project(project: &Project) -> Result<MetricsReport> {
     let nr_files = project.nr_files()?;
 
@@ -82,7 +92,10 @@ pub fn analyze_project(project: &Project) -> Result<MetricsReport> {
     })
 }
 
-/// Compute project-level totals from per-file metrics
+/// Compute project-level totals from per-file metrics.
+///
+/// The `test_code_percentage` field is computed from `test_lines / code_lines * 100.0`
+/// and is `0.0` when `code_lines == 0`.
 fn compute_totals(files: &[FileMetrics]) -> ProjectTotals {
     let mut totals = ProjectTotals {
         files: files.len(),

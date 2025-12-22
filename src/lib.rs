@@ -1,3 +1,33 @@
+//! Source code metrics for Noir (Nargo) projects.
+//!
+//! `noir-metrics` scans a project directory containing a `Nargo.toml`, walks all `.nr` files,
+//! and computes per-file and project-level metrics.
+//!
+//! # CLI
+//!
+//! ```text
+//! noir-metrics .
+//! noir-metrics . --json
+//! noir-metrics . --json --output metrics.json
+//! ```
+//!
+//! # Library
+//!
+//! ```no_run
+//! use std::path::Path;
+//!
+//! fn main() -> Result<(), Box<dyn std::error::Error>> {
+//!     let report = noir_metrics::analyze_path(Path::new("."))?;
+//!     println!("Total code lines: {}", report.totals.code_lines);
+//!     Ok(())
+//! }
+//! ```
+//!
+//! # JSON schema versioning
+//!
+//! JSON output includes a `tool.schema_version` field. The current schema version is
+//! [`JSON_SCHEMA_VERSION`].
+
 mod analysis;
 mod cli;
 mod output;
@@ -13,6 +43,8 @@ use std::path::Path;
 
 pub use crate::analysis::file::FileMetrics;
 pub use crate::analysis::project::{MetricsReport, ProjectTotals};
+
+/// Noir project handle (re-export of the internal [`project::Project`] type).
 pub use crate::project::Project as NoirProject;
 
 /// JSON schema version for the noir-metrics report format.

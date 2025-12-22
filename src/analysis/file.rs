@@ -5,6 +5,9 @@ use std::io::{BufRead, BufReader};
 use std::path::{Path, PathBuf};
 
 /// Metrics computed for a single `.nr` file.
+///
+/// Values are derived from a line-based scan and simple heuristics (not an AST parse).
+/// /// See the module documentation and [`FileMetrics`] field docs for classification rules and limitations.
 #[derive(Debug, Clone, Serialize)]
 pub struct FileMetrics {
     /// Path to the file, relative to the project root
@@ -52,7 +55,28 @@ pub struct FileMetrics {
     pub todo_count: usize,
 }
 
-/// Analyze a single `.nr` file and compute basic line metrics.
+/// Analyze a single `.nr` file and compute line-based metrics.
+///
+/// Line classification:
+/// - Blank lines: `trim().is_empty()`.
+/// - Line comments: trimmed lines starting with `//`.
+/// - Block comments: trimmed lines starting with `/*`, continuing until a line containing `*/`.
+/// - Code lines: all non-blank, non-comment lines.
+///
+/// Test detection:
+/// - A function is treated as a test when a `#[test...]` attribute line appears before a `fn`/`pub fn` line.
+/// - Test line attribution uses a brace-depth heuristic: once a test function is entered, lines are counted as
+///   test lines until the brace depth returns to zero.
+///
+/// TODO/FIXME detection:
+/// - `todo_count` increments when `TODO` or `FIXME` (case-insensitive) appears in comment lines.
+///
+/// Path handling:
+/// - The returned [`FileMetrics::path`] is relative to `project_root` when possible.
+///
+/// Limitations:
+/// - The analysis does not parse Noir syntax and may misclassify complex cases (e.g. braces in strings,
+///   inline block comments, or comment delimiters in unusual positions).
 pub fn analyze_file(path: &Path, project_root: &Path) -> Result<FileMetrics> {
     let file = File::open(path)?;
     let reader = BufReader::new(file);
